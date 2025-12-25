@@ -529,10 +529,38 @@ function processLidarFile(file) {
                     },
                     onEachFeature: (feature, layer) => {
                         if (feature.properties) {
-                            let popupContent = '<strong>Uploaded LiDAR Data</strong><br>';
+                            let popupContent = '<div style="font-family: sans-serif; min-width: 200px;">';
+                            popupContent += '<strong style="font-size: 1.1em; color: #0c4a6e;">📊 Uploaded LiDAR Data</strong><br><br>';
+                            
+                            // Format property names to be more readable
+                            const formatKey = (key) => {
+                                return key
+                                    .replace(/_/g, ' ')
+                                    .replace(/\b\w/g, l => l.toUpperCase());
+                            };
+                            
+                            // Format values with units where appropriate
+                            const formatValue = (key, value) => {
+                                if (key.includes('elevation') || key.includes('slope')) {
+                                    return `${value} m`;
+                                } else if (key.includes('width') || key.includes('length')) {
+                                    return `${value} m`;
+                                } else if (key.includes('density')) {
+                                    return value;
+                                } else if (key.includes('rate')) {
+                                    return value;
+                                }
+                                return value;
+                            };
+                            
                             for (let key in feature.properties) {
-                                popupContent += `${key}: ${feature.properties[key]}<br>`;
+                                const formattedKey = formatKey(key);
+                                const formattedValue = formatValue(key, feature.properties[key]);
+                                popupContent += `<span style="color: #0369a1; font-weight: 500;">${formattedKey}:</span> `;
+                                popupContent += `<span style="color: #0c4a6e;">${formattedValue}</span><br>`;
                             }
+                            
+                            popupContent += '</div>';
                             layer.bindPopup(popupContent);
                         }
                     }
