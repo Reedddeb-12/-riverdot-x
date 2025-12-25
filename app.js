@@ -1,8 +1,29 @@
+// Update timestamp with current date and time
+function updateTimestamp() {
+    const now = new Date();
+    const options = { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false
+    };
+    const formattedDate = now.toLocaleString('en-US', options);
+    const timestampEl = document.getElementById('last-updated');
+    if (timestampEl) {
+        timestampEl.textContent = `Last Updated: ${formattedDate}`;
+    }
+}
+
 // Landing page transition
 document.getElementById('explore-btn').addEventListener('click', () => {
     document.getElementById('landing-page').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
+    updateTimestamp();
     setTimeout(initMap, 100);
+    // Update timestamp every minute
+    setInterval(updateTimestamp, 60000);
 });
 
 let map;
