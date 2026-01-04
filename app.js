@@ -18,9 +18,19 @@ function updateTimestamp() {
 
 // Function to start dashboard (called by button onclick)
 function startDashboard() {
+    alert('Button clicked! Starting dashboard...');
     console.log('Starting dashboard...');
-    document.getElementById('landing-page').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
+    
+    const landingPage = document.getElementById('landing-page');
+    const dashboard = document.getElementById('dashboard');
+    
+    if (!landingPage || !dashboard) {
+        alert('Error: Page elements not found!');
+        return;
+    }
+    
+    landingPage.classList.add('hidden');
+    dashboard.classList.remove('hidden');
     updateTimestamp();
     
     // Initialize map with a slight delay to prevent blocking
@@ -29,7 +39,7 @@ function startDashboard() {
             initMap();
         } catch (error) {
             console.error('Map initialization error:', error);
-            alert('Error loading map. Please refresh the page.');
+            alert('Error loading map: ' + error.message);
         }
     }, 100);
     
