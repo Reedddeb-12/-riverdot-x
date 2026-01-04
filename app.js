@@ -21,7 +21,17 @@ document.getElementById('explore-btn').addEventListener('click', () => {
     document.getElementById('landing-page').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     updateTimestamp();
-    setTimeout(initMap, 100);
+    
+    // Initialize map with a slight delay to prevent blocking
+    setTimeout(() => {
+        try {
+            initMap();
+        } catch (error) {
+            console.error('Map initialization error:', error);
+            alert('Error loading map. Please refresh the page.');
+        }
+    }, 100);
+    
     // Update timestamp every minute
     setInterval(updateTimestamp, 60000);
 });
@@ -137,42 +147,54 @@ const riverData = {
 
 // Initialize map
 function initMap() {
-    const river = riverData[currentRiver];
-    map = L.map('map').setView(river.center, river.zoom);
-    
-    // Base layers
-    layers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Esri'
-    }).addTo(map);
-    
-    layers.lidar = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Esri',
-        opacity: 0.7
-    });
-    
-    // River path
-    riverPolyline = L.polyline(river.path, {
-        color: '#3b82f6',
-        weight: 4,
-        opacity: 0.7
-    }).addTo(map);
-    
-    // Elevation/slope layer (simulated with colored polygons)
-    layers.elevation = L.layerGroup();
-    createElevationLayer();
-    layers.elevation.addTo(map);
-    
-    // Initialize hotspots
-    layers.erosion = L.layerGroup();
-    layers.sedimentation = L.layerGroup();
-    createHotspots(0, 4);
-    layers.erosion.addTo(map);
-    layers.sedimentation.addTo(map);
-    
-    setupLayerToggles();
-    setupScenarioSimulator();
-    setupTimeline();
-    setupRiverSelector();
+    try {
+        const river = riverData[currentRiver];
+        map = L.map('map', {
+            preferCanvas: true, // Better performance
+            zoomControl: true
+        }).setView(river.center, river.zoom);
+        
+        // Base layers with better error handling
+        layers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Esri',
+            maxZoom: 18,
+            errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+        }).addTo(map);
+        
+        layers.lidar = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Esri',
+            opacity: 0.7,
+            maxZoom: 18
+        });
+        
+        // River path
+        riverPolyline = L.polyline(river.path, {
+            color: '#3b82f6',
+            weight: 4,
+            opacity: 0.7
+        }).addTo(map);
+        
+        // Elevation/slope layer (simulated with colored polygons)
+        layers.elevation = L.layerGroup();
+        createElevationLayer();
+        layers.elevation.addTo(map);
+        
+        // Initialize hotspots
+        layers.erosion = L.layerGroup();
+        layers.sedimentation = L.layerGroup();
+        createHotspots(0, 4);
+        layers.erosion.addTo(map);
+        layers.sedimentation.addTo(map);
+        
+        setupLayerToggles();
+        setupScenarioSimulator();
+        setupTimeline();
+        setupRiverSelector();
+    } catch (error) {
+        console.error('Map initialization failed:', error);
+        throw error;
+    }
+}
 }
 
 function createElevationLayer() {
@@ -576,13 +598,21 @@ function processLidarFile(file) {
                     addUploadedAreaHotspots(defaultBounds);
                 }
                 
-                document.getElementById('upload-info').textContent = file.name + ' - Loaded successfully';
+                document.getElementById('upload-info').textContent = file.name + ' - Loaded successfully ✓';
             } catch (error) {
                 console.error('GeoJSON parsing error:', error);
-                document.getElementById('upload-info').textContent = 'Error: Invalid GeoJSON format. Using simulated data instead.';
-                document.getElementById('upload-info').classList.remove('success');
+                const infoEl = document.getElementById('upload-info');
+                infoEl.textContent = '⚠️ Invalid GeoJSON. Using simulated data for demo.';
+                infoEl.classList.remove('success');
+                infoEl.style.color = '#ea580c';
+                infoEl.style.background = '#fed7aa';
                 // Fall back to simulated data
-                setTimeout(() => simulateLidarData(file.name), 500);
+                setTimeout(() => {
+                    simulateLidarData(file.name);
+                    infoEl.textContent = file.name + ' - Simulated data loaded';
+                    infoEl.style.color = '#0369a1';
+                    infoEl.style.background = 'rgba(224, 242, 254, 0.5)';
+                }, 500);
             }
         };
         reader.readAsText(file);
