@@ -21,7 +21,7 @@
             <h1>JalKavach</h1>
             <p class="subtitle">LiDAR Driven River Intelligence Dashboard</p>
             <p class="description">Real time erosion monitoring and predictive analytics for riverbank management</p>
-            <button id="explore-btn" class="explore-btn">Explore River Dashboard</button>
+            <button id="explore-btn" class="explore-btn" onclick="startDashboard()">Explore River Dashboard</button>
         </div>
     </div>
 
@@ -308,6 +308,12 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script>
+        // Debug: Check if button exists immediately
+        console.log('Button check:', document.getElementById('explore-btn'));
+        console.log('Landing page:', document.getElementById('landing-page'));
+        console.log('Dashboard:', document.getElementById('dashboard'));
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
