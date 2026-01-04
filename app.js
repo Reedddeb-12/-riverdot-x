@@ -16,24 +16,32 @@ function updateTimestamp() {
     }
 }
 
-// Landing page transition
-document.getElementById('explore-btn').addEventListener('click', () => {
-    document.getElementById('landing-page').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
-    updateTimestamp();
-    
-    // Initialize map with a slight delay to prevent blocking
-    setTimeout(() => {
-        try {
-            initMap();
-        } catch (error) {
-            console.error('Map initialization error:', error);
-            alert('Error loading map. Please refresh the page.');
-        }
-    }, 100);
-    
-    // Update timestamp every minute
-    setInterval(updateTimestamp, 60000);
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Landing page transition
+    const exploreBtn = document.getElementById('explore-btn');
+    if (exploreBtn) {
+        exploreBtn.addEventListener('click', () => {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            updateTimestamp();
+            
+            // Initialize map with a slight delay to prevent blocking
+            setTimeout(() => {
+                try {
+                    initMap();
+                } catch (error) {
+                    console.error('Map initialization error:', error);
+                    alert('Error loading map. Please refresh the page.');
+                }
+            }, 100);
+            
+            // Update timestamp every minute
+            setInterval(updateTimestamp, 60000);
+        });
+    } else {
+        console.error('Explore button not found!');
+    }
 });
 
 let map;
