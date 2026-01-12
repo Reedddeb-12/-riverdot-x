@@ -206,7 +206,7 @@ function initMap() {
         throw error;
     }
 }
-}
+
 
 function createElevationLayer() {
     const river = riverData[currentRiver];
